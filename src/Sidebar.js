@@ -12,6 +12,7 @@ function Sidebar({ notes, onAddNote, setNotes }){
     const [title, setTitle] = React.useState('');
     const [date, setDate] = React.useState('');
     const [selectedNote, setSelectedNote] = useState(null);
+    const [currentNote, setCurrentNote] = useState(null);
 
     function onRemoveNote(id){
       if (window.confirm("Are you sure you want to delete this note?")){
@@ -25,10 +26,34 @@ function Sidebar({ notes, onAddNote, setNotes }){
 
     function handleChange(value){
         setContent(value);
+        if(selectedNote) {
+          const updatedNote = {
+            ...selectedNote,
+            body: value,
+            lastModified: Date.now(),
+          };
+          setNotes((prevNotes) => 
+          prevNotes.map((note) => (note.id === selectedNote.id ? updatedNote : note))
+          );
+        }
     }
 
     function changeTitle(event){
-        setTitle(event.target.value);
+      setTitle(event.target.value);
+      if (selectedNote) {
+        const updatedNotes = {
+          ...selectedNote,
+          title: event.target.value,
+          lastModified: Date.now(),
+        };
+        setNotes((prevNotes) =>
+          prevNotes.map((note) => (note.id ===selectedNote.id ? updatedNotes : note)));
+          
+      }
+    }
+
+    function removePTags(text) {
+      return text.replace(/<p>/g, '').replace(/<\/p>/g, '');
     }
 
     function changeDate(event){
@@ -36,13 +61,16 @@ function Sidebar({ notes, onAddNote, setNotes }){
     }
 
     const handleEdit = () => {
-        navigate("/edit/:id");
+        navigate(`/edit/${selectedNote.id}`);
     }
 
     function onNoteClick(note){
+      const titleWithoutPTags = note.title.replace(/<p>/g, '').replace(/<\/p>/g, '');
+      const bodyWithoutPTags = note.body ? note.body.replace(/<p>/g, '').replace(/<\/p>/g, '') : '';
+    
         setSelectedNote(note);
-        setTitle(note.title);
-        setContent(note.body);
+        setTitle(titleWithoutPTags);
+        setContent(bodyWithoutPTags);
         setDate(note.lastModified);
     }
 
@@ -64,7 +92,7 @@ function Sidebar({ notes, onAddNote, setNotes }){
                   <div className="side-bar-note-title">
                     <strong>{note.title}</strong>
                   </div>
-                  <p>{note.body && note.body.substr(0, 100) + "..."}</p>
+                  <div>{note.body && note.body.replace(/<p>/g, '').replace(/<\/p>/g, '').substr(0, 30) + "..."}</div>
                   <small className="note-meta">
                     Last modified{" "}
                     {new Date(note.lastModified).toLocaleDateString("en-GB", {
@@ -110,7 +138,7 @@ function Sidebar({ notes, onAddNote, setNotes }){
                   />
                 </div>
                 <div className="text-area">
-                  <p>{content}</p>
+                  {removePTags(content)}
                 </div>
               </>
             ) : (

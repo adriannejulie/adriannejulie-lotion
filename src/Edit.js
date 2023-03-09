@@ -4,17 +4,15 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useNavigate, useParams } from "react-router-dom";
 
-function Edit({ notes, setNotes }){
+function Edit({ notes, setNotes, currentNote }){
+
 
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [content, setContent] = React.useState('');
-    const [title, setTitle] = React.useState('');
-    const [date, setDate] = React.useState('');
-
-
-    const selectedNote = notes.find((note) => note.id ===id);
+    const [content, setContent] = useState(currentNote?.body || '');
+    const [title, setTitle] = useState(currentNote?.title || '');
+    const [date, setDate] = useState(currentNote?.lastModified || '');
 
     function onRemoveNote(){
         if (window.confirm("Are you sure you want to delete this note?")){
@@ -23,6 +21,18 @@ function Edit({ notes, setNotes }){
             navigate("/");
         }
       }
+
+    useEffect(() => {
+        const selectedNote = notes.find((note) => note.id ===id);
+        if (selectedNote) {
+            setTitle(selectedNote.title);
+            setContent(selectedNote.body);
+            setDate(selectedNote.lastModified);
+        } else {
+            navigate("/");
+        }
+    }, [id, notes, navigate]);
+      
 
     function handleChange(value){
         setContent(value);
@@ -37,18 +47,13 @@ function Edit({ notes, setNotes }){
     }
 
     function handleSave(){
+        const updatedNotes = notes.map((note) =>
+            note.id === id ? {...note, title, body:content, lastModified: new Date().toISOString()} : note);
+        setNotes(updatedNotes);
         navigate("/");
     }
 
-    /*useEffect(() => {
-        if (selectedNote) {
-            setTitle(selectedNote.title);
-            setContent(selectedNote.body);
-            setDate(selectedNote.lastModified);
-        } else {
-            navigate("/");
-        }
-    }, [id, selectedNote, navigate]);*/
+    
 
     
     return <div className="app-main">
@@ -65,11 +70,13 @@ function Edit({ notes, setNotes }){
             <input type="datetime-local" id="date" value={date} onChange={changeDate} />
             </div>
             <div className="text-area">
-                    <ReactQuill className="text-editor" value={content} onChange={handleChange} placeholder="Add notes here...."  />  
+                    <ReactQuill value={content} onChange={handleChange}   />  
             </div>
     </div>
 }
 export default Edit;
+
+ //className="text-editor"
 
 /*const handleSave = () => {
         const note = {

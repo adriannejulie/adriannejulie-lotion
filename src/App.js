@@ -3,15 +3,17 @@ import Sidebar from "./Sidebar";
 //import Main from "./Main";
 import Header from "./Header";
 import Edit from "./Edit";
-import React from "react";
+import React, { createContext } from "react";
 import { useState } from "react";
 import uuid from "react-uuid";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 
+
 function App() {
   const [notes, setNotes] = useState([]);
   const [sidebarStatus, setSidebarStatus] = useState(null);
+  
 
   const onAddNote = () => {
     const newNote = {
