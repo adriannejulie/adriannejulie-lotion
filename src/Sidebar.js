@@ -1,5 +1,5 @@
 import "./index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -11,19 +11,9 @@ function Sidebar({ notes, onAddNote, setNotes }){
     const [content, setContent] = React.useState('');
     const [title, setTitle] = React.useState('');
     const [date, setDate] = React.useState('');
-    
-    const [selectedNote, setSelectedNote] = useState(() => {
-      const storedSelectedNote = localStorage.getItem("selectedNote");
-      return storedSelectedNote ? JSON.parse(storedSelectedNote) : null;
-    });
-    
+    const [selectedNote, setSelectedNote] = useState(null);
     const [currentNote, setCurrentNote] = useState(null);
 
-    useEffect(() => {
-      localStorage.setItem("selectedNote", JSON.stringify(selectedNote));
-    }, [selectedNote]);
-
-    
     function onRemoveNote(id){
       if (window.confirm("Are you sure you want to delete this note?")){
           if (selectedNote && selectedNote.id ===id){
